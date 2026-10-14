@@ -1,0 +1,35 @@
+/* DashboardScreen — progress dashboard styles */
+
+.dashboard__heading {
+  font-size: 1.15rem;
+  color: var(--text-dark);
+  text-align: center;
+  margin-top: 8px;
+}
+
+.dashboard__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Row content layout inside each Card */
+.dashboard__row-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.dashboard__row-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.dashboard__row-data {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2px;
+}

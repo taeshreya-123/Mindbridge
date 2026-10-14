@@ -1,0 +1,23 @@
+/* CountdownNumber — large pop-in number for breathing countdown */
+
+.countdown-number {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #6B21A8; /* MindBridge purple */
+  line-height: 1;
+  display: inline-block;
+  /* Pop animation: scale up and fade in */
+  animation: countdown-pop 300ms ease-out forwards;
+}
+
+/* Pop animation: starts slightly smaller and transparent, settles to full size */
+@keyframes countdown-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

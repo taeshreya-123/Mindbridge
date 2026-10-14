@@ -1,0 +1,166 @@
+/* ============================================================
+   BreatheScreen — breathing exercise page styles
+   Includes: screen layout, breath blobs, countdown, phase labels
+   ============================================================ */
+
+/* ---- Encouragement text ---- */
+.breathe__text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+  padding: 0 8px;
+}
+
+/* ---- Breathing visualisation container ---- */
+.breathe__visualisation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  min-height: 160px;
+  width: 100%;
+}
+
+/* ---- Phase label (Breathe In / Hold / Breathe Out) ---- */
+.breathe__phase-label {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--purple);
+  text-align: center;
+}
+
+/* ---- Countdown area ---- */
+.breathe__countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.breathe__remaining {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* ---- Resting state text ---- */
+.breathe__ready-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding-top: 8px;
+}
+
+/* ============================================================
+   BreathBlobs — animated blob styles (21st.dev adapted)
+   MindBridge purple palette: #6B21A8, #A855F7, #C4B5FD, #E9D5FF
+   Height: 50vmin (reduced from 80vmin for mobile)
+   ============================================================ */
+
+/* Outer wrapper — centres blobs and applies scale transform */
+.breath-blobs {
+  width: 50vmin;
+  height: 50vmin;
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+  /* Smooth scale transitions when phase changes */
+  transition: transform 0.8s ease-in-out;
+  margin: 0 auto;
+}
+
+/* Spinning container — rotates all blobs together */
+.breath-blobs__spin {
+  width: 100%;
+  height: 100%;
+  animation: spin 5s linear infinite;
+  position: relative;
+}
+
+/* @keyframes spin: 0deg → 360deg, 5s linear infinite
+   Applied to .breath-blobs__spin */
+@keyframes spin {
+  0%   { transform: rotate(0deg);   }
+  100% { transform: rotate(360deg); }
+}
+
+/* Base blob — all4 blobs share this */
+.breath-blobs__blob {
+  position: absolute;
+  border-radius: 50%;
+  /* Gooey blur effect for organic look */
+  filter: blur(1px);
+}
+
+/* Blob 1 — darkest purple, top-left, slowest morph */
+.breath-blobs__blob--1 {
+  width: 50%;
+  height: 50%;
+  top: 0;
+  left: 0;
+  background-color: #6B21A8;
+  animation: blob-morph-1 6s ease-in-out infinite alternate;
+}
+
+/* Blob 2 — medium purple, top-right, medium morph */
+.breath-blobs__blob--2 {
+  width: 50%;
+  height: 50%;
+  top: 0;
+  right: 0;
+  background-color: #A855F7;
+  animation: blob-morph-2 5s ease-in-out infinite alternate;
+}
+
+/* Blob 3 — light purple, bottom-left, slow morph */
+.breath-blobs__blob--3 {
+  width: 50%;
+  height: 50%;
+  bottom: 0;
+  left: 0;
+  background-color: #C4B5FD;
+  animation: blob-morph-3 7s ease-in-out infinite alternate;
+}
+
+/* Blob 4 — lightest purple, bottom-right, fast morph */
+.breath-blobs__blob--4 {
+  width: 50%;
+  height: 50%;
+  bottom: 0;
+  right: 0;
+  background-color: #E9D5FF;
+  animation: blob-morph-4 4s ease-in-out infinite alternate;
+}
+
+/* ---- Blob morph keyframes — each blob has unique timing ---- */
+
+@keyframes blob-morph-1 {
+  0%   { transform: scale(1)   translate(0%, 0%); }
+  33%  { transform: scale(1.1) translate(5%, -5%); }
+  66%  { transform: scale(0.9) translate(-3%, 3%); }
+  100% { transform: scale(1.05) translate(2%, -2%); }
+}
+
+@keyframes blob-morph-2 {
+  0%   { transform: scale(1)   translate(0%, 0%); }
+  33%  { transform: scale(0.9) translate(-5%, 5%); }
+  66%  { transform: scale(1.15) translate(3%, -3%); }
+  100% { transform: scale(1)   translate(-2%, 2%); }
+}
+
+@keyframes blob-morph-3 {
+  0%   { transform: scale(1)   translate(0%, 0%); }
+  33%  { transform: scale(1.05) translate(3%, 3%); }
+  66%  { transform: scale(0.95) translate(-4%, -2%); }
+  100% { transform: scale(1.1) translate(2%, 4%); }
+}
+
+@keyframes blob-morph-4 {
+  0%   { transform: scale(1)   translate(0%, 0%); }
+  33%  { transform: scale(1.2) translate(-4%, -4%); }
+  66%  { transform: scale(0.85) translate(4%, 2%); }
+  100% { transform: scale(1.1) translate(-2%, -3%); }
+}

@@ -1,0 +1,41 @@
+/* Card — reusable card component */
+
+/* Base card styles */
+.card {
+  border-radius: 16px;
+  color: var(--white);
+  width: 100%;
+}
+
+/* Square variant: large card for Result screen */
+.card--square {
+  padding: 40px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  border-radius: 20px;
+}
+
+.card--square p {
+  font-size: 1rem;
+  color: var(--white);
+  line-height: 1.5;
+}
+
+/* Row variant: horizontal card for Dashboard/Service screens */
+.card--row {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+}
+
+.card--row p,
+.card--row span {
+  font-size: 0.95rem;
+  color: var(--white);
+}

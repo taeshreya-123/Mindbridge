@@ -1,0 +1,42 @@
+/* PrimaryButton — shared button styles */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: 0.3px;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary variant: purple background, white text */
+.btn--primary {
+  background-color: var(--purple);
+  color: var(--white);
+}
+
+/* Secondary variant: lavender background, purple text */
+.btn--secondary {
+  background-color: var(--lavender-bg);
+  color: var(--purple);
+  border: 1px solid rgba(107, 33, 168, 0.15);
+}

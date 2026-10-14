@@ -1,0 +1,20 @@
+/* BreathingWave — inline SVG breathing diagram */
+
+.breathing-wave {
+  width: 100%;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+.breathing-wave__svg {
+  width: 100%;
+  min-width: 300px;
+  height: auto;
+}
+
+.breathing-wave__label {
+  font-size: 11px;
+  fill: var(--text-muted, #6B7280);
+  text-anchor: middle;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}

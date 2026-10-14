@@ -1,0 +1,54 @@
+/* StreakScreen — check-in streak page styles */
+
+.streak__heading {
+  font-size: 1.75rem;
+  color: var(--purple);
+  font-weight: 700;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.streak__message {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.streak__congrats {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.streak__subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* ---- GoldStar styles (merged here per plan correction) ---- */
+.gold-star {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+}
+
+.gold-star__svg {
+  display: block;
+}
+
+.gold-star__text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  white-space: nowrap;
+}

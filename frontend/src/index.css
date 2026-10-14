@@ -1,0 +1,105 @@
+/* ============================================================
+   MindBridge MVP — Global Styles
+   Mobile-first, 400px max-width, plain CSS
+   ============================================================ */
+
+/* ---- Colour Palette Custom Properties ---- */
+:root {
+  --purple: #6B21A8;
+  --purple-light: #7C3AED;
+  --lavender-bg: #F3E8FF;
+  --green: #22C55E;
+  --gold: #E5B94E;
+  --blue: #60A5FA;
+  --pink-red: #F87171;
+  --orange: #F59E0B;
+  --white: #FFFFFF;
+  --text-dark: #1F1F1F;
+  --text-muted: #6B7280;
+  --text-light: #9CA3AF;
+}
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--lavender-bg);
+  color: var(--text-dark);
+  line-height: 1.5;
+  min-height: 100dvh;
+}
+
+#root {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 24px rgba(107, 33, 168, 0.08);
+}
+
+/* ---- Global Typography ---- */
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--purple);
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* ---- Range Slider (global, used on MoodChecker screen) ---- */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--orange);
+  border-radius: 4px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  background: var(--purple);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 6px rgba(107, 33, 168, 0.3);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  background: var(--purple);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 6px rgba(107, 33, 168, 0.3);
+}

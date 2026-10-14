@@ -1,0 +1,16 @@
+/* MoodDots — row of 4 coloured dots */
+
+.mood-dots {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.mood-dots__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: block;
+}

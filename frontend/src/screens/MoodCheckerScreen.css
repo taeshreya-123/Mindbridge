@@ -1,0 +1,52 @@
+/* MoodCheckerScreen — mood slider page styles */
+
+.mood__subtitle {
+  font-size: 0.9rem;
+  color: var(--purple);
+  font-weight: 600;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.mood__question {
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Slider container */
+.mood__slider-area {
+  width: 100%;
+  padding: 16px 0;
+}
+
+.mood__slider {
+  width: 100%;
+}
+
+/* Labels row: BAD — MEH — GOOD */
+.mood__labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 4px;
+}
+
+.mood__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mood__label--bad {
+  color: var(--pink-red);
+}
+
+.mood__label--meh {
+  color: var(--gold);
+}
+
+.mood__label--good {
+  color: var(--green);
+}

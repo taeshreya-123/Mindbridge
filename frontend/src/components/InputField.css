@@ -1,0 +1,46 @@
+/* InputField — form input / textarea styles */
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.input-field__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.input-field__input,
+.input-field__textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--text-dark);
+  background-color: var(--white);
+  transition: border-color 0.2s;
+}
+
+.input-field__input:focus,
+.input-field__textarea:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.1);
+}
+
+.input-field__input::placeholder,
+.input-field__textarea::placeholder {
+  color: var(--text-light);
+}
+
+/* Textarea-specific adjustments */
+.input-field__textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
