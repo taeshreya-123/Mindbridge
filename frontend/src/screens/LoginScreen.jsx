@@ -45,7 +45,7 @@ export default function LoginScreen() {
           body: JSON.stringify({ student_id: studentId, password }),
         });
       } catch (loginError) {
-        if (loginError.status !== 401) {
+        if (loginError.status !== 401 || loginError.message !== 'User not found') {
           throw loginError;
         }
 

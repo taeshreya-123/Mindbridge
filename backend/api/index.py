@@ -1,4 +1,5 @@
 import os
+import traceback
 from pathlib import Path
 from typing import Any
 
@@ -11,7 +12,7 @@ from supabase import create_client
 
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
-load_dotenv(BACKEND_DIR / ".env")
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_PUBLISHABLE_KEY = os.getenv("SUPABASE_PUBLISHABLE_KEY")
@@ -20,7 +21,14 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not SUPABASE_URL or not SUPABASE_PUBLISHABLE_KEY or not DATABASE_URL:
     raise RuntimeError("Required backend environment variables are missing.")
 
+try:
+    SUPABASE_SERVICE_ROLE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+except KeyError as error:
+    print("SUPABASE_SERVICE_ROLE_KEY is required for Auth user lookup.")
+    raise RuntimeError("SUPABASE_SERVICE_ROLE_KEY is required for Auth user lookup.") from error
+
 supabase = create_client(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 app = FastAPI()
 
 app.add_middleware(
@@ -61,6 +69,7 @@ def get_connection():
 
 
 def internal_email(student_id: str) -> str:
+    """Create the backend-only Auth identifier for a student."""
     return f"{student_id.strip().lower()}@mindbridge.local"
 
 
@@ -74,6 +83,54 @@ def session_payload(session: Any, user: Any, full_name: str) -> dict[str, Any]:
         "access_token": session.access_token,
         "user": {"id": str(user.id), "full_name": full_name},
     }
+
+
+def log_exception(context: str, error: Exception) -> None:
+    """Write safe exception diagnostics to function logs."""
+    print(f"{context} error: {str(error)}")
+    print(f"{context} error repr: {repr(error)}")
+    print(f"{context} error args: {error.args}")
+    print(traceback.format_exc())
+
+
+def find_auth_user(email: str) -> Any | None:
+    """Use the server-only admin client to find an Auth user by email."""
+    users = supabase_admin.auth.admin.list_users(per_page=1000)
+    return next((user for user in users if user.email and user.email.lower() == email), None)
+
+
+def profile_name(user_id: str) -> str:
+    with get_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT full_name FROM profiles WHERE id = %s", (user_id,))
+            profile = cursor.fetchone()
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="Your profile could not be found. Please contact support.")
+    return profile[0]
+
+
+def login_existing_user(student_id: str, password: str) -> dict[str, Any]:
+    email = internal_email(student_id)
+    try:
+        if not find_auth_user(email):
+            raise HTTPException(status_code=401, detail="User not found")
+
+        try:
+            response = supabase.auth.sign_in_with_password({"email": email, "password": password})
+        except Exception as error:
+            log_exception("Login password verification", error)
+            raise HTTPException(status_code=401, detail="Incorrect password. Please try again.") from error
+
+        if not response.user or not response.session:
+            raise RuntimeError("Supabase did not return a user session.")
+
+        return session_payload(response.session, response.user, profile_name(str(response.user.id)))
+    except HTTPException:
+        raise
+    except Exception as error:
+        log_exception("Login", error)
+        raise HTTPException(status_code=500, detail=str(error)) from error
 
 
 def verify_token(authorization_header: str | None) -> str:
@@ -102,9 +159,13 @@ def health_check() -> dict[str, str]:
 @app.post("/api/auth/signup", status_code=status.HTTP_201_CREATED)
 def signup(payload: SignUpRequest) -> dict[str, Any]:
     try:
+        email = internal_email(payload.student_id)
+        if find_auth_user(email):
+            return login_existing_user(payload.student_id, payload.password)
+
         response = supabase.auth.sign_up(
             {
-                "email": internal_email(payload.student_id),
+                "email": email,
                 "password": payload.password,
                 "options": {"data": {"full_name": payload.full_name, "student_id": payload.student_id}},
             }
@@ -118,41 +179,25 @@ def signup(payload: SignUpRequest) -> dict[str, Any]:
                     """
                     INSERT INTO profiles (id, full_name, student_id)
                     VALUES (%s, %s, %s)
-                    ON CONFLICT (id) DO UPDATE
-                    SET full_name = EXCLUDED.full_name, student_id = EXCLUDED.student_id
+                    ON CONFLICT (id) DO NOTHING
                     """,
                     (str(response.user.id), payload.full_name, payload.student_id),
                 )
+
+        if not response.session:
+            response = supabase.auth.sign_in_with_password({"email": email, "password": payload.password})
 
         return session_payload(response.session, response.user, payload.full_name)
     except HTTPException:
         raise
     except Exception as error:
-        raise HTTPException(status_code=400, detail="Unable to create your account. Please check your details and try again.") from error
+        log_exception("Signup", error)
+        raise HTTPException(status_code=500, detail=str(error)) from error
 
 
 @app.post("/api/auth/login")
 def login(payload: LoginRequest) -> dict[str, Any]:
-    try:
-        response = supabase.auth.sign_in_with_password(
-            {"email": internal_email(payload.student_id), "password": payload.password}
-        )
-        if not response.user or not response.session:
-            raise ValueError("No session returned from login")
-
-        with get_connection() as connection:
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT full_name FROM profiles WHERE id = %s", (str(response.user.id),))
-                profile = cursor.fetchone()
-
-        if not profile:
-            raise HTTPException(status_code=404, detail="Your profile could not be found. Please contact support.")
-
-        return session_payload(response.session, response.user, profile[0])
-    except HTTPException:
-        raise
-    except Exception as error:
-        raise HTTPException(status_code=401, detail="Incorrect email or password. Please try again.") from error
+    return login_existing_user(payload.student_id, payload.password)
 
 
 @app.post("/api/checkin", status_code=status.HTTP_201_CREATED)
