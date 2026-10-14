@@ -5,7 +5,9 @@
  * Reads/writes name and studentId from MoodContext.
  * Uses: ScreenWrapper, InputField (×2), PrimaryButton
  */
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '../api/client';
 import { useMood } from '../context/MoodContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 import InputField from '../components/InputField';
@@ -15,10 +17,28 @@ import './LoginScreen.css';
 export default function LoginScreen() {
   const navigate = useNavigate();
   const { name, setName, studentId, setStudentId } = useMood();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleGetStarted = () => {
-    // Navigate to streak screen (validation can be added later)
-    navigate('/streak');
+  const handleGetStarted = async () => {
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const data = await apiRequest('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({ full_name: name, student_id: studentId, email, password }),
+      });
+      localStorage.setItem('access_token', data.access_token);
+      navigate('/streak');
+    } catch (requestError) {
+      console.error('Sign-up failed:', requestError);
+      setError(requestError.message || 'We could not create your account. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,10 +67,29 @@ export default function LoginScreen() {
           onChange={(e) => setStudentId(e.target.value)}
           placeholder="Enter your Student ID"
         />
+        <InputField
+          label="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          type="email"
+        />
+        <InputField
+          label="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Choose a password"
+          type="password"
+        />
       </div>
 
-      {/* Get started button */}
-      <PrimaryButton label="Get started" onClick={handleGetStarted} />
+      {error && <p className="form-error" role="alert">{error}</p>}
+
+      <PrimaryButton
+        label={isSubmitting ? 'Creating account...' : 'Get started'}
+        onClick={handleGetStarted}
+        disabled={isSubmitting}
+      />
 
       {/* Consent notice */}
       <p className="login__consent">

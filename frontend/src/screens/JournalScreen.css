@@ -7,3 +7,9 @@
   line-height: 1.6;
   padding: 8px 0;
 }
+
+.form-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  text-align: center;
+}

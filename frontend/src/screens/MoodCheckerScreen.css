@@ -50,3 +50,9 @@
 .mood__label--good {
   color: var(--green);
 }
+
+.form-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  text-align: center;
+}

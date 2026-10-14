@@ -39,6 +39,13 @@
   width: 100%;
 }
 
+.form-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0;
+}
+
 /* Consent notice — small text at bottom */
 .login__consent {
   font-size: 0.75rem;

@@ -7,7 +7,9 @@
  *
  * Uses: ScreenWrapper, Card (variant="row" ×4), PrimaryButton (secondary), CircularArrowButton
  */
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '../api/client';
 import ScreenWrapper from '../components/ScreenWrapper';
 import Card from '../components/Card';
 import PrimaryButton from '../components/PrimaryButton';
@@ -16,14 +18,19 @@ import './DashboardScreen.css';
 
 export default function DashboardScreen() {
   const navigate = useNavigate();
+  const [dashboard, setDashboard] = useState({ mood_entries: [], checkins: [] });
+  const [error, setError] = useState('');
 
-  /** Weekly data for the 4 dashboard row cards */
-  const weeks = [
-    { label: 'Present Week', color: '#22C55E', data: '********' },
-    { label: 'Week 3',       color: '#E5B94E', data: '***********' },
-    { label: 'Week 2',       color: '#60A5FA', data: '********' },
-    { label: 'Week 1',       color: '#F87171', data: '***********' },
-  ];
+  useEffect(() => {
+    apiRequest('/dashboard')
+      .then(setDashboard)
+      .catch((requestError) => {
+        console.error('Dashboard load failed:', requestError);
+        setError('We could not load your saved progress. Please try again.');
+      });
+  }, []);
+
+  const moodColors = ['#22C55E', '#E5B94E', '#60A5FA', '#F87171'];
 
   return (
     <ScreenWrapper showBack={true}>
@@ -32,15 +39,25 @@ export default function DashboardScreen() {
 
       {/* 4 weekly progress cards */}
       <div className="dashboard__cards">
-        {weeks.map((week) => (
-          <Card key={week.label} color={week.color} variant="row">
+        {dashboard.mood_entries.length === 0 && <p>No saved mood entries yet.</p>}
+        {dashboard.mood_entries.map((entry, index) => (
+          <Card key={entry.id} color={moodColors[index % moodColors.length]} variant="row">
             <div className="dashboard__row-content">
-              <span className="dashboard__row-label">{week.label}</span>
-              <span className="dashboard__row-data">{week.data}</span>
+              <span className="dashboard__row-label">Mood check-in</span>
+              <span className="dashboard__row-data">{entry.mood}/100</span>
             </div>
           </Card>
         ))}
+        {dashboard.checkins[0] && (
+          <Card color="#22C55E" variant="row">
+            <div className="dashboard__row-content">
+              <span className="dashboard__row-label">Latest streak</span>
+              <span className="dashboard__row-data">{dashboard.checkins[0].streak_count} days</span>
+            </div>
+          </Card>
+        )}
       </div>
+      {error && <p className="form-error" role="alert">{error}</p>}
 
       {/* Secondary button: survey of previous month */}
       <PrimaryButton

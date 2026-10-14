@@ -19,6 +19,7 @@ export default function InputField({
   onChange,
   placeholder = '',
   multiline = false,
+  type = 'text',
 }) {
   return (
     <div className="input-field">
@@ -34,7 +35,7 @@ export default function InputField({
       ) : (
         <input
           className="input-field__input"
-          type="text"
+          type={type}
           value={value}
           onChange={onChange}
           placeholder={placeholder}

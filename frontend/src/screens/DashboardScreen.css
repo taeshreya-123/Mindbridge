@@ -33,3 +33,9 @@
   color: rgba(255, 255, 255, 0.8);
   letter-spacing: 2px;
 }
+
+.form-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  text-align: center;
+}

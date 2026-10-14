@@ -26,6 +26,12 @@
   color: var(--text-muted);
 }
 
+.form-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 /* ---- GoldStar styles (merged here per plan correction) ---- */
 .gold-star {
   position: relative;

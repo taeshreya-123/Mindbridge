@@ -5,7 +5,9 @@
  * Stores the mood value in MoodContext.
  * Uses: ScreenWrapper, PrimaryButton
  */
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '../api/client';
 import { useMood } from '../context/MoodContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 import PrimaryButton from '../components/PrimaryButton';
@@ -14,6 +16,22 @@ import './MoodCheckerScreen.css';
 export default function MoodCheckerScreen() {
   const navigate = useNavigate();
   const { mood, setMood } = useMood();
+  const [error, setError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleNext = async () => {
+    setError('');
+    setIsSaving(true);
+    try {
+      await apiRequest('/mood', { method: 'POST', body: JSON.stringify({ mood }) });
+      navigate('/breathe');
+    } catch (requestError) {
+      console.error('Mood save failed:', requestError);
+      setError('We could not save your mood. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <ScreenWrapper showBack={true}>
@@ -43,10 +61,12 @@ export default function MoodCheckerScreen() {
         </div>
       </div>
 
-      {/* Next button */}
+      {error && <p className="form-error" role="alert">{error}</p>}
+
       <PrimaryButton
-        label="Next"
-        onClick={() => navigate('/breathe')}
+        label={isSaving ? 'Saving...' : 'Next'}
+        onClick={handleNext}
+        disabled={isSaving}
       />
     </ScreenWrapper>
   );
