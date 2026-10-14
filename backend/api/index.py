@@ -34,15 +34,14 @@ app.add_middleware(
 
 
 class SignUpRequest(BaseModel):
-    email: str
     password: str = Field(min_length=6)
     full_name: str = Field(min_length=1)
     student_id: str = Field(min_length=1)
 
 
 class LoginRequest(BaseModel):
-    email: str
-    password: str = Field(min_length=1)
+    student_id: str = Field(min_length=1)
+    password: str = Field(min_length=6)
 
 
 class CheckInRequest(BaseModel):
@@ -61,17 +60,20 @@ def get_connection():
     return psycopg2.connect(DATABASE_URL)
 
 
-def user_payload(user: Any) -> dict[str, Any]:
-    return {"id": str(user.id), "email": user.email}
+def internal_email(student_id: str) -> str:
+    return f"{student_id.strip().lower()}@mindbridge.local"
 
 
-def session_payload(session: Any, user: Any) -> dict[str, Any]:
+def session_payload(session: Any, user: Any, full_name: str) -> dict[str, Any]:
     if not session or not session.access_token:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Account created. Please confirm your email before logging in.",
         )
-    return {"access_token": session.access_token, "user": user_payload(user)}
+    return {
+        "access_token": session.access_token,
+        "user": {"id": str(user.id), "full_name": full_name},
+    }
 
 
 def verify_token(authorization_header: str | None) -> str:
@@ -102,7 +104,7 @@ def signup(payload: SignUpRequest) -> dict[str, Any]:
     try:
         response = supabase.auth.sign_up(
             {
-                "email": payload.email,
+                "email": internal_email(payload.student_id),
                 "password": payload.password,
                 "options": {"data": {"full_name": payload.full_name, "student_id": payload.student_id}},
             }
@@ -122,7 +124,7 @@ def signup(payload: SignUpRequest) -> dict[str, Any]:
                     (str(response.user.id), payload.full_name, payload.student_id),
                 )
 
-        return session_payload(response.session, response.user)
+        return session_payload(response.session, response.user, payload.full_name)
     except HTTPException:
         raise
     except Exception as error:
@@ -132,10 +134,21 @@ def signup(payload: SignUpRequest) -> dict[str, Any]:
 @app.post("/api/auth/login")
 def login(payload: LoginRequest) -> dict[str, Any]:
     try:
-        response = supabase.auth.sign_in_with_password({"email": payload.email, "password": payload.password})
+        response = supabase.auth.sign_in_with_password(
+            {"email": internal_email(payload.student_id), "password": payload.password}
+        )
         if not response.user or not response.session:
             raise ValueError("No session returned from login")
-        return session_payload(response.session, response.user)
+
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT full_name FROM profiles WHERE id = %s", (str(response.user.id),))
+                profile = cursor.fetchone()
+
+        if not profile:
+            raise HTTPException(status_code=404, detail="Your profile could not be found. Please contact support.")
+
+        return session_payload(response.session, response.user, profile[0])
     except HTTPException:
         raise
     except Exception as error:

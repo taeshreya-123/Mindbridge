@@ -12,7 +12,9 @@ export async function apiRequest(path, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.detail || 'Something went wrong. Please try again.');
+    const error = new Error(data.detail || 'Something went wrong. Please try again.');
+    error.status = response.status;
+    throw error;
   }
 
   return data;

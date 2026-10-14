@@ -17,25 +17,54 @@ import './LoginScreen.css';
 export default function LoginScreen() {
   const navigate = useNavigate();
   const { name, setName, studentId, setStudentId } = useMood();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGetStarted = async () => {
     setError('');
+
+    if (!studentId.trim()) {
+      setError('Please enter your Student ID.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Your password must be at least 6 characters long.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const data = await apiRequest('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({ full_name: name, student_id: studentId, email, password }),
-      });
+      let data;
+
+      try {
+        data = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ student_id: studentId, password }),
+        });
+      } catch (loginError) {
+        if (loginError.status !== 401) {
+          throw loginError;
+        }
+
+        if (!name.trim()) {
+          throw new Error('Please enter your name to create a new account.');
+        }
+
+        data = await apiRequest('/auth/signup', {
+          method: 'POST',
+          body: JSON.stringify({ full_name: name, student_id: studentId, password }),
+        });
+      }
+
       localStorage.setItem('access_token', data.access_token);
+      setName(data.user.full_name);
       navigate('/streak');
     } catch (requestError) {
-      console.error('Sign-up failed:', requestError);
-      setError(requestError.message || 'We could not create your account. Please try again.');
+      console.error('Authentication failed:', requestError);
+      setError(requestError.message || 'We could not log you in. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -66,13 +95,6 @@ export default function LoginScreen() {
           value={studentId}
           onChange={(e) => setStudentId(e.target.value)}
           placeholder="Enter your Student ID"
-        />
-        <InputField
-          label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          type="email"
         />
         <InputField
           label="Password"
